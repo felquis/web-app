@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+
+var webpack = require('webpack')
+var config = require('../webpack.config.js')
+var configDev = require('../webpack.config.dev.js')
+var Dashboard = require('webpack-dashboard')
+var DashboardPlugin = require('webpack-dashboard/plugin')
+var WebpackDevServer = require('webpack-dev-server')
+var command = process.argv[2]
+var compiler
+var server
+var dashboard
+
+console.log('Running web-app ' + command)
+
+var root = process.cwd()
+
+switch (command) {
+	case ('build'):
+		compiler = webpack(config(root), function(err, stats) {})
+		dashboard = new Dashboard()
+		compiler.apply(new DashboardPlugin(dashboard.setData))
+		compiler.run(function (err, stats) {})
+		break
+
+	case ('dev'):
+		compiler = webpack(configDev(root), function(err, stats) {})
+		dashboard = new Dashboard()
+		compiler.apply(new DashboardPlugin(dashboard.setData))
+		server = new WebpackDevServer(compiler, {})
+		server.listen(8080)
+
+		break
+
+	default:
+		throw Error('Usage web-app deploy|dev')
+}
